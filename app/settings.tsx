@@ -3,12 +3,20 @@ import React, { useState } from "react";
 
 const settings = () => {
   const [userName, setUserName] = useState("");
-  const [randomName, setRandomName] = useState({});
+  const [getDetails, setGetDetails] = useState({});
 
   const fetchRepos = async () => {
-    const data = await fetch(`https://api.github.com/users/${userName}`);
-    const res = await data.json();
-    setRandomName(res);
+    try {
+      const data = await fetch(`https://api.github.com/users/${userName}`);
+      const res = await data.json();
+      if (res.message === "Not Found") {
+        alert("User not found");
+        return;
+      }
+      setGetDetails(res);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (
@@ -18,14 +26,18 @@ const settings = () => {
         style={styles.input}
         placeholder="Enter your GitHub username "
         value={userName}
-        //   onChange={(e) => setName(e.target.value)} // -> not correcet syntax
         onChangeText={setUserName}
       />
-      
-      <Button title="Fetch Repo" onPress={fetchRepos}></Button>
-      <Text>Name:{randomName.name}</Text>
-      <Text>Followers:{randomName.followers}</Text>
-      <Text>Repos:{randomName.public_repos}</Text>
+
+      <Button
+        title="Fetch Details"
+        onPress={fetchRepos}
+      ></Button>
+
+
+      {getDetails.name && <Text>Name: {getDetails.name}</Text>}
+      {getDetails.followers && <Text>Followers: {getDetails.followers}</Text>}
+      {getDetails.public_repos && <Text>Repos: {getDetails.public_repos}</Text>}
     </View>
   );
 };
